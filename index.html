@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="is">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Veðrið – Fjölskyldumælaborð</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Pixelify+Sans:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="title"><span class="grass-block" aria-hidden="true"></span>Veðrið í <span id="place-name">…</span></h1>
+    <div class="clock">
+      <div id="clock-time">--:--</div>
+      <div id="clock-date" class="clock-date"></div>
+    </div>
+    <div class="status"><span id="status-dot" class="dot"></span><span id="status-text">Sæki veður…</span></div>
+  </header>
+
+  <main class="grid">
+    <!-- Character -->
+    <section class="card card-steve">
+      <div class="bubble" id="bubble">Hæ! Ég er Veður-Steve. Ég segi ykkur hvernig þið eigið að klæða ykkur í dag.</div>
+      <div class="steve-stage">
+        <div class="weather-fx" id="weather-fx"></div>
+        <div id="steve" class="steve"></div>
+        <div class="steve-ground"></div>
+      </div>
+      <p class="advice" id="advice">…</p>
+    </section>
+
+    <!-- Temperature -->
+    <section class="card card-temp">
+      <h2>Hiti núna</h2>
+      <div class="temp-body">
+        <svg id="thermo" class="thermo" viewBox="0 0 90 260" aria-hidden="true"></svg>
+        <div>
+          <div class="big" id="temp-now">–°</div>
+          <div class="muted">Með vindkælingu</div>
+          <div class="feels" id="temp-feels">(–°C)</div>
+          <div class="minmax"><span class="hi">▲ <span id="temp-max">–</span>°</span><span class="lo">▼ <span id="temp-min">–</span>°</span></div>
+          <div class="tiny muted">næsta sólarhring</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Wind -->
+    <section class="card card-wind">
+      <h2>Vindurinn</h2>
+      <div class="wind-body">
+        <svg id="windsock" class="windsock" viewBox="0 0 220 260" aria-hidden="true"></svg>
+        <div class="wind-info">
+          <div class="big"><span id="wind-speed">–</span><span class="unit">m/s</span></div>
+          <div class="wind-fun" id="wind-fun">…</div>
+          <div class="bars" id="wind-bars"><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="wind-dir"><span class="compass" id="wind-compass">➜</span><span id="wind-desc">…</span></div>
+          <div class="gust-box">
+            <div class="gust-label">Mesta hviða næstu 12 tíma<br><b id="gust-time">kl. –</b></div>
+            <div class="gust-val">(<span id="gust-max">–</span><small>m/s</small>)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Traffic light -->
+    <section class="card card-light">
+      <h2>Hvað segir veðurljósið?</h2>
+      <div class="light-body">
+        <div class="traffic" id="traffic"><i class="red"></i><i class="yellow"></i><i class="green"></i></div>
+        <div>
+          <div class="light-title" id="light-title">…</div>
+          <div class="muted" id="light-text"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rain -->
+    <section class="card card-rain">
+      <h2>Regnglasið</h2>
+      <svg id="rainglass" class="rainglass" viewBox="0 0 160 200" aria-hidden="true"></svg>
+      <div class="rain-amount"><span id="rain-mm">–</span> <small>mm í dag</small></div>
+      <div class="muted center" id="rain-text"></div>
+    </section>
+
+    <!-- Pressure trend -->
+    <section class="card card-trend">
+      <h2>Betra eða verra veður næsta sólarhring?</h2>
+      <svg id="gauge" class="gauge" viewBox="0 0 200 120" aria-hidden="true"></svg>
+      <div class="gauge-labels"><span>Verra</span><span>Betra</span></div>
+      <div class="trend-title" id="trend-title">…</div>
+      <div class="muted center tiny" id="trend-text"></div>
+    </section>
+
+    <!-- Hourly -->
+    <section class="card card-hourly">
+      <h2>Næstu klukkutímar</h2>
+      <div class="hourly" id="hourly"></div>
+    </section>
+  </main>
+
+  <footer class="ticker">
+    <span class="pill">Vissir þú?</span>
+    <span id="fact" class="fact"></span>
+    <span class="credit">Veðurspá: <a href="https://api.met.no/" target="_blank" rel="noopener">MET Norway</a></span>
+  </footer>
+
+  <script src="js/config.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/steve.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
