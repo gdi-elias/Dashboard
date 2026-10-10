@@ -3,9 +3,9 @@
 //   index.html?demo=1   (fake data, useful for testing the layout)
 window.DASHBOARD_CONFIG = {
   location: {
-    name: "Neskaupstað",   // shown as "Veðrið í <name>" (dative form)
-    lat: 65.1483,
-    lon: -13.6869,
+    name: "Reykjavík",     // shown as "Veðrið í <name>" (dative form)
+    lat: 64.1466,
+    lon: -21.9426,
   },
   characterName: "Veður-Steve",
   refreshMinutes: 15,       // met.no asks clients not to poll too often
