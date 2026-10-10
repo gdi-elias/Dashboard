@@ -5,12 +5,11 @@ See [PROJECT.md](PROJECT.md) for the vision, original prompt and roadmap.
 
 ## Run it
 
-It is a static page with no build step and no API key.
+Plain HTML, CSS and JavaScript – no install, no build step, no API key.
+Just open `index.html` in a browser (double-click it), or put the folder on
+any static web host (e.g. GitHub Pages) to show it on a tablet or TV.
 
-```sh
-python3 -m http.server 8000
-# open http://localhost:8000
-```
+Add these to the address if you like:
 
 - `?demo=1` – fake weather data (handy for testing the layout offline)
 - `?lat=64.1355&lon=-21.8954&name=Reykjavík` – another location
