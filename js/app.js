@@ -140,8 +140,8 @@
 
   function renderTrend(w) {
     const t = Weather.trend(w);
-    const dp = Math.max(-6, Math.min(6, w.pressureDelta));
-    const angle = dp / 6 * 80; // -80..80 degrees
+    const d = Math.max(-4, Math.min(4, w.outlook.delta));
+    const angle = d / 4 * 80; // -80..80 degrees
     const arc = (a0, a1, color) => {
       const r = 72, cx = 100, cy = 100, rad = a => (a - 90) * Math.PI / 180;
       const p = a => `${cx + r * Math.cos(rad(a))} ${cy + r * Math.sin(rad(a))}`;
@@ -152,7 +152,12 @@
       `<g class="needle" style="transform: rotate(${angle}deg)"><path d="M97 100 L100 34 L103 100 Z" fill="#f1f5f9"/></g>` +
       `<circle cx="100" cy="100" r="9" fill="#f1f5f9"/>`;
     $("trend-title").textContent = t.title;
-    $("trend-text").textContent = `${fmt(Math.round(w.pressure))} hPa · ${t.text}`;
+    const tm = w.outlook.tomorrow;
+    $("trend-reason").textContent = t.reason;
+    $("trend-reason").style.color = w.outlook.delta > 1 ? "var(--green)" : w.outlook.delta < -1 ? "var(--orange)" : "var(--muted)";
+    $("trend-text").textContent =
+      `Á morgun: ${tm.symbol.emoji} ${round(tm.temp)}° · ${fmt(Math.round(tm.wind))} m/s · ${tm.precip > 0.05 ? "úrkoma" : "þurrt"}` +
+      ` · ${fmt(Math.round(w.pressure))} hPa, ${t.baro}`;
   }
 
   function renderHourly(w) {

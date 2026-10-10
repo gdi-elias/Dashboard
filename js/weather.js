@@ -37,6 +37,7 @@
             wind_from_direction: 35 + h * 3,
             air_pressure_at_sea_level: +(1008 + h * 0.15).toFixed(1),
             relative_humidity: 80,
+            cloud_area_fraction: h < 20 ? 90 : 25,
           } },
           next_1_hours: {
             summary: { symbol_code: rain ? "lightrain" : h % 7 < 3 ? "partlycloudy_day" : "cloudy" },
@@ -114,6 +115,56 @@
     return "none";
   }
 
+  // Average conditions over a list of forecast hours.
+  function conditions(entries) {
+    const n = entries.length;
+    const avg = f => entries.reduce((a, s) => a + f(s), 0) / n;
+    const det = s => s.data.instant.details;
+    const precip = s => {
+      const x = s.data.next_1_hours || s.data.next_6_hours;
+      if (!x || !x.details) return 0;
+      return (x.details.precipitation_amount || 0) / (s.data.next_1_hours ? 1 : 6);
+    };
+    const sym = s => {
+      const x = s.data.next_1_hours || s.data.next_6_hours;
+      return x && x.summary ? x.summary.symbol_code : "cloudy";
+    };
+    const mid = entries[Math.floor(n / 2)];
+    return {
+      temp: avg(s => det(s).air_temperature),
+      wind: avg(s => det(s).wind_speed),
+      precip: avg(precip),
+      cloud: avg(s => det(s).cloud_area_fraction != null ? det(s).cloud_area_fraction : 60),
+      thunder: entries.some(s => sym(s).includes("thunder")),
+      symbol: symbolInfo(sym(mid)),
+    };
+  }
+
+  // "Niceness" score for kids playing outside: dry, calm, mild and sunny is best.
+  function niceness(c) {
+    return -Math.min(3, c.precip) * 2.5
+      - Math.max(0, c.wind - 4) * 0.45
+      + Math.max(-10, Math.min(15, c.temp)) * 0.12
+      - (c.cloud / 100) * 1.2
+      - (c.thunder ? 3 : 0);
+  }
+
+  function compareDays(nowEntries, tomorrowEntries) {
+    const a = conditions(nowEntries), b = conditions(tomorrowEntries);
+    const delta = niceness(b) - niceness(a);
+    // the biggest contributing reasons, in kid language
+    const reasons = [
+      [(a.precip - b.precip) * 2.5, "þurrara", "meiri úrkoma"],
+      [(Math.max(0, a.wind - 4) - Math.max(0, b.wind - 4)) * 0.45, "minni vindur", "meiri vindur"],
+      [(b.temp - a.temp) * 0.12, "hlýrra", "kaldara"],
+      [(a.cloud - b.cloud) / 100 * 1.2, "meiri sól", "meira skýjað"],
+    ].filter(([v]) => Math.abs(v) >= 0.3)
+     .sort((x, y) => Math.abs(y[0]) - Math.abs(x[0]))
+     .slice(0, 2)
+     .map(([v, better, worse]) => v > 0 ? better : worse);
+    return { delta, reasons, tomorrow: b };
+  }
+
   // ---------- summary ----------
 
   function summarize(forecast, tz) {
@@ -156,10 +207,16 @@
       }
     });
 
-    // pressure trend over the next 12 hours
+    // pressure change over the next 24 hours (shown as a secondary hint)
     const p0 = d.air_pressure_at_sea_level;
-    const p12entry = in24[Math.min(12, in24.length - 1)];
-    const p12 = p12entry.data.instant.details.air_pressure_at_sea_level;
+    const p24 = in24[in24.length - 1].data.instant.details.air_pressure_at_sea_level;
+
+    // compare the next few hours with tomorrow daytime (09–18 local time)
+    const tomorrow = dayKey(new Date(now).getTime() + 24 * 3600e3);
+    const hourOf = t => +new Date(t).toLocaleTimeString("en-GB", { hour: "2-digit", hourCycle: "h23", timeZone: tz });
+    const nowWindow = series.slice(idx, idx + 4);
+    const tomorrowWindow = series.filter(s => dayKey(s.time) === tomorrow && hourOf(s.time) >= 9 && hourOf(s.time) <= 18);
+    const outlook = compareDays(nowWindow, tomorrowWindow.length ? tomorrowWindow : in24.slice(-4));
 
     const hourly = series.slice(idx, idx + 12).map(s => {
       const n = s.data.next_1_hours;
@@ -193,7 +250,8 @@
       rainLater,
       laterKind,
       pressure: p0,
-      pressureDelta: p12 - p0,
+      pressureDelta: p24 - p0,
+      outlook,
       hourly,
     };
   }
@@ -254,10 +312,12 @@
   }
 
   function trend(w) {
-    const dp = w.pressureDelta;
-    if (dp > 1.5) return { title: "Líklega betra veður ↗", text: "loftvogin er að hækka" };
-    if (dp < -1.5) return { title: "Líklega verra veður ↘", text: "loftvogin er að falla" };
-    return { title: "Líklega helst veðrið svipað →", text: "loftvogin stendur í stað" };
+    const d = w.outlook.delta, dp = w.pressureDelta;
+    const reason = w.outlook.reasons.length ? w.outlook.reasons.join(" og ") : "";
+    const baro = dp > 1.5 ? "loftvogin hækkar" : dp < -1.5 ? "loftvogin fellur" : "loftvogin stendur í stað";
+    if (d > 1) return { title: "Betra veður á morgun ↗", reason, baro };
+    if (d < -1) return { title: "Verra veður á morgun ↘", reason, baro };
+    return { title: "Svipað veður á morgun →", reason: reason || "lítil breyting", baro };
   }
 
   window.Weather = { fetchForecast, cachedForecast, demoForecast, summarize, outfitFor, playLight, rainText, trend };

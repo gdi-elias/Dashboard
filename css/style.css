@@ -315,3 +315,4 @@ body {
   .card-wind .wind-body { padding-top: 6px; }
   .windsock { margin-top: 30px; }
 }
+.trend-reason { color: var(--green); font-weight: 700; font-size: 20px; text-align: center; }
